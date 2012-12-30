@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+set -e
+
+BUILD_DIR=`pwd`/build-dir
+INSTALL_DIR=$1
+
+whack install ./whack-package-apache2 ${INSTALL_DIR}
+cp -rT ${BUILD_DIR}/php5 ${INSTALL_DIR}/php5
+cp ${BUILD_DIR}/apache2/modules/libphp5.so ${INSTALL_DIR}/modules/
+
+echo 'LoadModule php5_module modules/libphp5.so' >> ${INSTALL_DIR}/conf/httpd.conf
+echo '<FilesMatch \.php$>
+    SetHandler application/x-httpd-php
+</FilesMatch>' >> ${INSTALL_DIR}/conf/httpd.conf

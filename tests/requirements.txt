@@ -1,0 +1,4 @@
+nose==1.2.1
+requests>=1,<2
+whack==0.2.5
+starboard==0.1.0

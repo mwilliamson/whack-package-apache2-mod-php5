@@ -1,0 +1,40 @@
+#!/usr/bin/env sh
+
+set -e
+
+. $(dirname $0)/set-versions
+
+ROOT_DIR=`pwd`
+BUILD_DIR=${ROOT_DIR}/build-dir
+
+APACHE2_DIR=${BUILD_DIR}/apache2
+
+# TODO: change to dependency configured externally (can't just call whack twice due to potential race condition)
+git clone https://github.com/mwilliamson/whack-package-apache2
+# Remove .git directory to ensure caching works correctly
+rm -rf ./whack-package-apache2/.git
+
+mkdir -p `dirname ${APACHE2_DIR}`
+# TODO: fix whack so that relative paths work
+whack install `pwd`/whack-package-apache2 ${APACHE2_DIR}
+# TODO: move fix into apache2 package
+APACHE2_BUILD_DIR=`cat ${APACHE2_DIR}/whack-build-dir`
+sed -i -e s,"${APACHE2_BUILD_DIR}","${APACHE2_DIR}",g ${APACHE2_DIR}/bin/apxs
+sed -i -e s,"${APACHE2_BUILD_DIR}","${APACHE2_DIR}",g ${APACHE2_DIR}/bin/apr-1-config
+sed -i -e s,"${APACHE2_BUILD_DIR}","${APACHE2_DIR}",g ${APACHE2_DIR}/bin/apu-1-config
+sed -i -e s,"${APACHE2_BUILD_DIR}","${APACHE2_DIR}",g ${APACHE2_DIR}/build/config_vars.mk
+
+
+build_php() {
+    PHP_SRC_DIR=php-${PHP_VERSION}
+    PHP_DIR=${BUILD_DIR}/php5
+    
+    tar xzf php-${PHP_VERSION}.tar.gz
+    cd ${PHP_SRC_DIR}
+    ./configure --prefix=${PHP_DIR} --with-apxs2=${APACHE2_DIR}/bin/apxs --with-mysql
+    make
+    make install
+    cp php.ini-production ${PHP_DIR}/lib/php.ini
+}
+
+build_php
