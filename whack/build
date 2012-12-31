@@ -24,17 +24,44 @@ sed -i -e s,"${APACHE2_BUILD_DIR}","${APACHE2_DIR}",g ${APACHE2_DIR}/bin/apr-1-c
 sed -i -e s,"${APACHE2_BUILD_DIR}","${APACHE2_DIR}",g ${APACHE2_DIR}/bin/apu-1-config
 sed -i -e s,"${APACHE2_BUILD_DIR}","${APACHE2_DIR}",g ${APACHE2_DIR}/build/config_vars.mk
 
+build_libxml() {
+    # TODO: package libxml separately
+    
+    LIBXML_SRC_DIR=libxml2-${LIBXML_VERSION}
+    LIBXML_DIR=${BUILD_DIR}/libxml2
+    
+    tar xzf libxml2-${LIBXML_VERSION}.tar.gz
+    cd ${LIBXML_SRC_DIR}
+    ./configure --prefix=${LIBXML_DIR}
+    make
+    make install
+    
+    cd ${ROOT_DIR}
+}
 
 build_php() {
+    build_libxml
+    
     PHP_SRC_DIR=php-${PHP_VERSION}
     PHP_DIR=${BUILD_DIR}/php5
     
     tar xzf php-${PHP_VERSION}.tar.gz
     cd ${PHP_SRC_DIR}
-    ./configure --prefix=${PHP_DIR} --with-apxs2=${APACHE2_DIR}/bin/apxs --with-mysql
+    ./configure --prefix=${PHP_DIR} \
+        LDFLAGS="-Wl,-rpath -Wl,\\\$\$ORIGIN/../libxml2/lib" \
+        --with-apxs2=${APACHE2_DIR}/bin/apxs \
+        --with-libxml-dir=${LIBXML_DIR} \
+        --with-mysql
     make
     make install
     cp php.ini-production ${PHP_DIR}/lib/php.ini
+    
+    cd ${ROOT_DIR}
 }
 
 build_php
+# TODO: support both relocatable and non-relocatable packages?
+# Set as an environment variable and act accordingly -- in general,
+# the relocatable version is the non-relocatable version plus some
+# additional steps. Is it actually just the difference between build
+# and install i.e. non-relocatable never calls install?

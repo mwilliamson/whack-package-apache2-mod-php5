@@ -6,6 +6,10 @@ BUILD_DIR=`pwd`/build-dir
 INSTALL_DIR=$1
 
 whack install ./whack-package-apache2 ${INSTALL_DIR}
+cp -rT ${BUILD_DIR}/libxml2 ${INSTALL_DIR}/libxml2
+# It seems libphp5.so doesn't have rpath correctly set when passing LDFLAGS
+# to ./configure, so we'll fall back on httpd's rpath
+cp -rT ${BUILD_DIR}/libxml2/lib ${INSTALL_DIR}/lib/
 cp -rT ${BUILD_DIR}/php5 ${INSTALL_DIR}/php5
 cp ${BUILD_DIR}/apache2/modules/libphp5.so ${INSTALL_DIR}/modules/
 
