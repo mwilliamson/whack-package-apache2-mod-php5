@@ -2,18 +2,57 @@
 
 set -e
 
-BUILD_DIR=`pwd`/build-dir
+. $(dirname $0)/set-versions
+
+ROOT_DIR=`pwd`
 INSTALL_DIR=$1
 
-whack install ./whack-package-apache2 ${INSTALL_DIR}
-cp -rT ${BUILD_DIR}/libxml2 ${INSTALL_DIR}/libxml2
-# It seems libphp5.so doesn't have rpath correctly set when passing LDFLAGS
-# to ./configure, so we'll fall back on httpd's rpath
-cp -rT ${BUILD_DIR}/libxml2/lib ${INSTALL_DIR}/lib/
-cp -rT ${BUILD_DIR}/php5 ${INSTALL_DIR}/php5
-cp ${BUILD_DIR}/apache2/modules/libphp5.so ${INSTALL_DIR}/modules/
+APACHE2_DIR=${INSTALL_DIR}
 
-echo 'LoadModule php5_module modules/libphp5.so' >> ${INSTALL_DIR}/conf/httpd.conf
+mkdir -p "${INSTALL_DIR}"
+# TODO: change to dependency configured externally 
+whack install git+https://github.com/mwilliamson/whack-package-apache2 "${APACHE2_DIR}"
+
+build_libxml() {
+    # TODO: package libxml separately
+    
+    LIBXML_SRC_DIR=libxml2-${LIBXML_VERSION}
+    LIBXML_DIR=${INSTALL_DIR}/libxml2
+    
+    tar xzf libxml2-${LIBXML_VERSION}.tar.gz
+    cd ${LIBXML_SRC_DIR}
+    ./configure --prefix=${LIBXML_DIR}
+    make
+    make install
+    
+    cd ${ROOT_DIR}
+}
+
+build_php() {
+    build_libxml
+    
+    PHP_SRC_DIR=php-${PHP_VERSION}
+    PHP_DIR=${INSTALL_DIR}
+    
+    tar xzf php-${PHP_VERSION}.tar.gz
+    cd ${PHP_SRC_DIR}
+    ./configure \
+        --prefix=${PHP_DIR} \
+        --bindir=${PHP_DIR}/.bin \
+        --sbindir=${PHP_DIR}/.bin \
+        --with-apxs2=${APACHE2_DIR}/bin/apxs \
+        --with-libxml-dir=${LIBXML_DIR} \
+        --with-mysql
+    make
+    make install
+    cp php.ini-production ${PHP_DIR}/lib/php.ini
+    
+    cd ${ROOT_DIR}
+}
+
+build_php
+
+#~ echo 'LoadModule php5_module modules/libphp5.so' >> ${INSTALL_DIR}/conf/httpd.conf
 echo '<FilesMatch \.php$>
     SetHandler application/x-httpd-php
 </FilesMatch>' >> ${INSTALL_DIR}/conf/httpd.conf
