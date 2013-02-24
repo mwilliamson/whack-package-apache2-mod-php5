@@ -11,7 +11,7 @@ APACHE2_DIR=${INSTALL_DIR}
 
 mkdir -p "${INSTALL_DIR}"
 # TODO: change to dependency configured externally 
-whack install git+https://github.com/mwilliamson/whack-package-apache2 "${APACHE2_DIR}"
+whack get-package git+https://github.com/mwilliamson/whack-package-apache2@59973c6304 "${APACHE2_DIR}"
 
 build_libxml() {
     # TODO: package libxml separately
@@ -40,7 +40,7 @@ build_php() {
         --prefix=${PHP_DIR} \
         --bindir=${PHP_DIR}/.bin \
         --sbindir=${PHP_DIR}/.bin \
-        --with-apxs2=${APACHE2_DIR}/bin/apxs \
+        --with-apxs2=${APACHE2_DIR}/.bin/apxs \
         --with-libxml-dir=${LIBXML_DIR} \
         --with-mysql
     make

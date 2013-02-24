@@ -1,4 +1,4 @@
 nose==1.2.1
 requests>=1,<2
-whack>=0.3.1
+whack>=0.5, <0.6
 starboard==0.1.0

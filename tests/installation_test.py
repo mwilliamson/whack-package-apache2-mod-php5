@@ -27,7 +27,7 @@ def php_files_are_served():
 
 def install_apache2(directory, port):
     path = os.path.join(os.path.dirname(__file__), "..")
-    subprocess.check_call(["whack", "install", path, directory,"--no-cache"])
+    subprocess.check_call(["whack", "install", path, directory,"--disable-cache"])
     
     conf_path = os.path.join(directory, "conf/httpd.conf")
     with open(conf_path, "r") as conf_file:
