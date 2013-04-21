@@ -1,3 +1,9 @@
 {
-    "template": "fixed-root"
+    "name": "apache2-mod-php5",
+    "paramSlug": "{php_version}",
+    "defaultParams": {
+        "php_version": "5.4.10",
+        "libxml_version": "2.9.0"
+    },
+    "sourcePaths": ["whack"]
 }
