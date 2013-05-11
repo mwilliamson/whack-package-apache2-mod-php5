@@ -4,3 +4,4 @@ set -e
 
 echo http://php.net/get/php-${PHP_VERSION}.tar.gz/from/this/mirror php-${PHP_VERSION}.tar.gz
 echo ftp://xmlsoft.org/libxml2/libxml2-${LIBXML_VERSION}.tar.gz
+echo http://downloads.sourceforge.net/project/mcrypt/Libmcrypt/${LIBMCRYPT_VERSION}/libmcrypt-${LIBMCRYPT_VERSION}.tar.gz

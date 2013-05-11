@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -e
 
@@ -26,21 +26,56 @@ build_libxml() {
     cd ${ROOT_DIR}
 }
 
+build_libmcrypt() {
+    LIBMCRYPT_DIR=${INSTALL_DIR}/libmcrypt
+    
+    tar xzf libmcrypt-${LIBMCRYPT_VERSION}.tar.gz
+    cd libmcrypt-${LIBMCRYPT_VERSION}
+    ./configure --prefix=${LIBMCRYPT_DIR}
+    make
+    make install
+    
+    cd ${ROOT_DIR}
+}
+
+add_php_arg() {
+    PHP_ARGS=("${PHP_ARGS[@]}" "$1")
+}
+
 build_php() {
     build_libxml
+    if [ -n "$WITH_LIBMCRYPT" ]; then
+        build_libmcrypt
+    fi
     
     PHP_SRC_DIR=php-${PHP_VERSION}
     PHP_DIR=${INSTALL_DIR}
     
     tar xzf php-${PHP_VERSION}.tar.gz
     cd ${PHP_SRC_DIR}
-    ./configure \
-        --prefix=${PHP_DIR} \
-        --bindir=${PHP_DIR}/.bin \
-        --sbindir=${PHP_DIR}/.bin \
-        --with-apxs2=${APACHE2_DIR}/.bin/apxs \
-        --with-libxml-dir=${LIBXML_DIR} \
-        --with-mysql
+    
+    PHP_ARGS=(
+        --prefix=${PHP_DIR}
+        --bindir=${PHP_DIR}/.bin
+        --sbindir=${PHP_DIR}/.bin
+        --with-apxs2=${APACHE2_DIR}/.bin/apxs
+        --with-libxml-dir=${LIBXML_DIR}
+        --with-mysql=mysqlnd
+    )
+    
+    if [ -n "$WITH_LIBMCRYPT" ]; then
+        add_php_arg "--with-mcrypt=${LIBMCRYPT_DIR}"
+    fi
+    
+    if [ -n "$WITH_MBSTRING" ]; then
+        add_php_arg --enable-mbstring
+    fi
+    
+    if [ -n "$WITH_PDO_MYSQL" ]; then
+        add_php_arg --with-pdo-mysql=mysqlnd
+    fi
+    
+    ./configure "${PHP_ARGS[@]}"
     make
     make install
     cp php.ini-production ${PHP_DIR}/lib/php.ini

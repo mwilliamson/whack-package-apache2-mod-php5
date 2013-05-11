@@ -3,7 +3,8 @@
     "paramSlug": "{php_version}",
     "defaultParams": {
         "php_version": "5.4.10",
-        "libxml_version": "2.9.0"
+        "libxml_version": "2.9.0",
+        "libmcrypt_version": "2.5.8"
     },
     "sourcePaths": ["whack"]
 }
