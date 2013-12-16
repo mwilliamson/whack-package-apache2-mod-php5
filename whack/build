@@ -75,6 +75,14 @@ build_php() {
         add_php_arg --with-pdo-mysql=mysqlnd
     fi
     
+    if [ -n "$WITH_PGSQL" ]; then
+        add_php_arg --with-pgsql
+    fi
+    
+    if [ -n "$WITH_PDO_PGSQL" ]; then
+        add_php_arg --with-pdo-pgsql
+    fi
+    
     ./configure "${PHP_ARGS[@]}"
     make
     make install
