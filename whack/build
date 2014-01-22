@@ -9,7 +9,7 @@ APACHE2_DIR=${INSTALL_DIR}
 
 mkdir -p "${INSTALL_DIR}"
 # TODO: change to dependency configured externally 
-whack get-package 'git+https://github.com/mwilliamson/whack-package-apache2.git#da11ae7' "${APACHE2_DIR}"
+whack get-package 'git+https://github.com/mwilliamson/whack-package-apache2.git#afaf200' "${APACHE2_DIR}"
 
 build_libxml() {
     # TODO: package libxml separately
