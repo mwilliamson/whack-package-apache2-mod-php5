@@ -83,6 +83,10 @@ build_php() {
         add_php_arg --with-pdo-pgsql
     fi
     
+    if [ -n "$WITH_OPENSSL" ]; then
+        add_php_arg --with-openssl
+    fi
+    
     ./configure "${PHP_ARGS[@]}"
     make
     make install
