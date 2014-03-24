@@ -87,6 +87,10 @@ build_php() {
         add_php_arg --with-openssl
     fi
     
+    if [ -n "$WITH_ZLIB" ]; then
+        add_php_arg --with-zlib
+    fi
+    
     ./configure "${PHP_ARGS[@]}"
     make
     make install
